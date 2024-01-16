@@ -205,7 +205,7 @@ main {
       display: flex;
       justify-content: flex-start;
       align-items: center;
-      gap: 0px 7px;
+      gap: 0px 14px;
       overflow-x: hidden;
       overflow-y: auto;
       white-space: nowrap;

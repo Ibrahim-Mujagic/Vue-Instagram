@@ -13,6 +13,7 @@ export default {
       likesNum: 0,
       limitComments: 3,
       isShowAllComments: false,
+      isShowModal: false,
     };
   },
   methods: {
@@ -63,7 +64,11 @@ export default {
       </div>
     </div>
     <div class="picture">
-      <img :src="postData.post_image" alt="" />
+      <img
+        @click="isShowModal = true"
+        :src="postData.post_image"
+        :alt="postData.post_text"
+      />
     </div>
     <div class="like-comments">
       <div class="buttons-post">
@@ -120,6 +125,9 @@ export default {
       <textarea placeholder="Aggiungi un coommento"></textarea>
       <button>Pubblica</button>
     </div>
+  </div>
+  <div @click="isShowModal = false" v-if="isShowModal" class="modal">
+    <img :src="postData.post_image" :alt="postData.post_text" />
   </div>
 </template>
 
@@ -238,6 +246,20 @@ export default {
         border: 1px solid $main-blue;
       }
     }
+  }
+}
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(220, 220, 220, 0.783);
+  img {
+    border-radius: 10px;
   }
 }
 </style>
