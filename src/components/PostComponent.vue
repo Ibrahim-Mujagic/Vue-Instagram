@@ -11,6 +11,8 @@ export default {
       userLikes: [],
       randomLike: "",
       likesNum: 0,
+      limitComments: 3,
+      isShowAllComments: false,
     };
   },
   methods: {
@@ -29,6 +31,15 @@ export default {
       } else {
         this.randomLike = "";
         this.likesNum = 0;
+      }
+    },
+    showAllComments() {
+      this.isShowAllComments = !this.isShowAllComments;
+
+      if (this.isShowAllComments) {
+        this.limitComments = this.postData.comments.length;
+      } else {
+        this.limitComments = 3;
       }
     },
   },
@@ -63,6 +74,7 @@ export default {
           <i class="fa-regular fa-comment"></i>
         </button>
       </div>
+      <h4 class="post-text">{{ postData.post_text }}</h4>
       <div class="like-counter">
         <p>
           <span v-if="randomLike !== ''"
@@ -70,15 +82,34 @@ export default {
             <strong v-html="randomLike"></strong>
           </span>
           <span v-if="likesNum > 0">
-            e a <strong>{{ likesNum }}</strong> persone
+            e ad altre <strong>{{ likesNum }}</strong> persone
           </span>
         </p>
       </div>
       <div class="users-comments-section">
-        <p class="show-more-comments">Mostra tutti i 4 commenti</p>
-        <div class="card-comment">
-          <h5 class="name-user">Mario Rossi</h5>
-          <p>Lorem ipsum dolor</p>
+        <p
+          @click="showAllComments()"
+          v-if="postData.comments.length > 3"
+          class="show-more-comments"
+        >
+          {{
+            postData.comments.length > 0
+              ? "Mostra tutti i" +
+                " " +
+                postData.comments.length +
+                " " +
+                "commenti"
+              : ""
+          }}
+        </p>
+
+        <div
+          v-for="(comment, index) in postData.comments.slice(0, limitComments)"
+          :key="index"
+          class="card-comment"
+        >
+          <h5 class="name-user">{{ comment.username }}</h5>
+          <p>{{ comment.text }}</p>
         </div>
       </div>
       <div class="last-comment">
@@ -146,16 +177,20 @@ export default {
     }
   }
 
+  .post-text {
+    margin: 10px 0px;
+  }
+
   .users-comments-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
     .show-more-comments {
       color: $secondary-gray;
       font-size: 0.9rem;
+      cursor: pointer;
     }
     .card-comment {
-      min-height: 35px;
+      min-height: 30px;
       display: flex;
       align-items: center;
       gap: 0px 10px;

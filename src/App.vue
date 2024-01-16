@@ -21,6 +21,7 @@ export default {
       usersProfiles: [],
       newPosts: [],
       postActivities: [],
+      isLoaded: false,
     };
   },
   methods: {
@@ -29,11 +30,16 @@ export default {
       event.preventDefault();
     },
     getApiData(key, itemToRet) {
+      this.isLoaded = false;
+
       axios
         .get(store.apiUrl + key)
         .then((response) => {
-          itemToRet.length = 0;
-          itemToRet.push(response.data);
+          setTimeout(() => {
+            itemToRet.length = 0;
+            itemToRet.push(response.data);
+            this.isLoaded = true;
+          }, 3000);
         })
         .catch((error) => {
           console.log(error);
@@ -61,40 +67,73 @@ export default {
 
 <template>
   <HeaderComponent />
-  <main>
+  <main :class="isLoaded ? 'loaded' : 'loading'">
+    <div v-if="!isLoaded" class="loader">
+      <img :src="store.getImg('spinner.gif')" alt="loader" />
+    </div>
     <div class="stories-posts">
-      <div class="stories" ref="scrollContainer">
+      <div
+        :class="{ ' stories': true, 'loading-opacity': !isLoaded }"
+        ref="scrollContainer"
+      >
         <StorieComponent
+          v-if="isLoaded"
           v-for="(storie, index) in usersProfiles[0]"
           :key="index"
           :storie="storie"
         />
+        <div v-else class="skeleton" v-for="n in 7">
+          <div class="icon"></div>
+        </div>
       </div>
+
       <div class="posts">
         <PostComponent
+          v-if="isLoaded"
           v-for="(post, index) in newPosts[0]"
           :key="index"
           :postData="post"
         />
+        <div v-for="n in 7" v-else class="skeleton">
+          <div class="header">
+            <div class="circle"></div>
+            <div class="text"></div>
+          </div>
+          <div class="skeleton-body"></div>
+        </div>
       </div>
     </div>
     <div class="aside">
       <div class="card-alternative">
-        <AlternativeUserComp />
+        <AlternativeUserComp v-if="isLoaded" />
+        <div v-else class="skeleton">
+          <div class="circle"></div>
+          <div class="cont-text">
+            <div class="text"></div>
+            <div class="text"></div>
+          </div>
+          <div class="link"></div>
+        </div>
       </div>
       <div class="cont-users">
-        <div class="text-section">
+        <div v-if="isLoaded" class="text-section">
           <p>Suggerimenti per te</p>
           <a href="">Mostra tutti</a>
         </div>
         <div class="recommended-users">
           <RecommendedUserComp
+            v-if="isLoaded"
             v-for="(user, index) in usersProfiles[0]"
             :key="index"
             :userProfile="user"
           />
+          <div v-else v-for="n in 10" class="skeleton">
+            <div class="circle"></div>
+            <div class="text"></div>
+            <div class="link"></div>
+          </div>
         </div>
-        <p class="footer-aside">
+        <p v-if="isLoaded" class="footer-aside">
           <i class="fa-regular fa-copyright"></i>
           2020 INSTAGRAM FROM FACEBOOK
         </p>
@@ -105,11 +144,50 @@ export default {
 
 <style lang="scss">
 @use "./style/vars" as *;
+@import "./style/mixin";
 main {
   width: 80%;
   margin: auto;
   display: flex;
   padding-top: 50px;
+
+  :is(.stories, .posts, .cont-users, .card-alternative) {
+    .skeleton {
+      animation: skeleton-loading 2s infinite alternate;
+
+      .cont-text {
+        .text {
+          margin-bottom: 10px;
+        }
+      }
+      .text,
+      .link {
+        height: 14px;
+        width: 100px;
+        background-color: $secondary-gray;
+      }
+
+      .circle {
+        height: 60px;
+        @include roundElement;
+        background-color: $secondary-gray;
+      }
+    }
+    @keyframes skeleton-loading {
+      0% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  }
+
+  .loader {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+  }
 
   .stories-posts {
     width: 65%;
@@ -131,16 +209,64 @@ main {
       overflow-x: hidden;
       overflow-y: auto;
       white-space: nowrap;
+
+      &.loading-opacity {
+        border: 1px solid gainsboro;
+      }
+
+      .skeleton {
+        height: 72px;
+        @include roundElement;
+        background-color: $secondary-gray;
+        opacity: 0.5;
+      }
     }
     .posts {
       width: 100%;
+      .skeleton {
+        height: 500px;
+        width: 100%;
+        border: 1px solid $secondary-gray;
+        opacity: 0.5;
+        margin-bottom: 20px;
+
+        .header {
+          height: 70px;
+          padding: 10px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .skeleton-body {
+          height: calc(100% - 70px);
+          width: 100%;
+          background-color: $secondary-gray;
+        }
+      }
     }
   }
   .aside {
     width: 35%;
 
+    .card-alternative {
+      .skeleton {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        opacity: 0.5;
+      }
+    }
+
     .cont-users {
       padding: 5px;
+      .skeleton {
+        height: 85px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        opacity: 0.5;
+      }
       .text-section {
         display: flex;
         justify-content: space-between;
