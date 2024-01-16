@@ -2,19 +2,23 @@
 import { store } from "../data/store";
 export default {
   name: "RecommendedUser",
+  props: {
+    userProfile: Object,
+  },
   data() {
     return {
       store,
     };
   },
+  methods: {},
 };
 </script>
 <template>
   <div class="user-card">
-    <a class="image-name">
-      <img :src="store.getImg('profile.jpg')" alt="" />
-      <h5>Name</h5>
-    </a>
+    <div class="image-name">
+      <img :src="userProfile.profile_picture" alt="" />
+      <h5>{{ userProfile.profile_name }}</h5>
+    </div>
     <button>Segui</button>
   </div>
 </template>
@@ -31,6 +35,7 @@ export default {
   .image-name {
     display: flex;
     align-items: center;
+    cursor: pointer;
     img {
       height: 60px;
       @include roundElement;

@@ -2,10 +2,38 @@
 import { store } from "../data/store";
 export default {
   name: "PostComponent",
+  props: {
+    postData: Object,
+  },
   data() {
     return {
       store,
+      userLikes: [],
+      randomLike: "",
+      likesNum: 0,
     };
+  },
+  methods: {
+    getRandomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    getRandomUserLike() {
+      if (
+        Array.isArray(this.postData.likes) &&
+        this.postData.likes.length > 0
+      ) {
+        this.userLikes = this.postData.likes;
+        let randomIndex = this.getRandomNumber(0, this.userLikes.length - 1);
+        this.randomLike = this.userLikes[randomIndex].username;
+        this.likesNum = this.userLikes.length;
+      } else {
+        this.randomLike = "";
+        this.likesNum = 0;
+      }
+    },
+  },
+  mounted() {
+    this.getRandomUserLike();
   },
 };
 </script>
@@ -14,8 +42,8 @@ export default {
   <div class="post">
     <div class="post-header">
       <a href="#" class="image-name">
-        <img :src="store.getImg('profile.jpg')" alt="" />
-        <h4>Name</h4>
+        <img :src="postData.profile_picture" :alt="postData.profile_name" />
+        <h4>{{ postData.profile_fullname }}</h4>
       </a>
       <div class="dots">
         <a href="#">
@@ -24,7 +52,7 @@ export default {
       </div>
     </div>
     <div class="picture">
-      <img :src="store.getImg('landscape.png')" alt="" />
+      <img :src="postData.post_image" alt="" />
     </div>
     <div class="like-comments">
       <div class="buttons-post">
@@ -36,7 +64,15 @@ export default {
         </button>
       </div>
       <div class="like-counter">
-        <p>Piace a <strong>35 persone</strong> e <strong>altri 4</strong></p>
+        <p>
+          <span v-if="randomLike !== ''"
+            >Piace a
+            <strong v-html="randomLike"></strong>
+          </span>
+          <span v-if="likesNum > 0">
+            e a <strong>{{ likesNum }}</strong> persone
+          </span>
+        </p>
       </div>
       <div class="users-comments-section">
         <p class="show-more-comments">Mostra tutti i 4 commenti</p>

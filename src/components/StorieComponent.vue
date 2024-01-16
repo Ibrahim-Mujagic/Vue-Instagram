@@ -2,6 +2,9 @@
 import { store } from "../data/store";
 export default {
   name: "StorieComp",
+  props: {
+    storie: Object,
+  },
   data() {
     return {
       store,
@@ -12,8 +15,8 @@ export default {
 
 <template>
   <div class="cont-storie">
-    <img :src="store.getImg('profile.jpg')" alt="" />
-    <p>Name</p>
+    <img :src="storie.profile_picture" alt="" />
+    <p>{{ storie.profile_name }}</p>
   </div>
 </template>
 
@@ -24,6 +27,7 @@ export default {
   cursor: pointer;
   border-radius: 50%;
   height: 72px;
+  width: 72px;
   padding: 2px;
   background-image: linear-gradient(to right, #f92163, #fa833c);
   text-align: center;

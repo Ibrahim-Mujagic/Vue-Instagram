@@ -4,6 +4,8 @@ import StorieComponent from "./components/StorieComponent.vue";
 import PostComponent from "./components/PostComponent.vue";
 import AlternativeUserComp from "./components/AlternativeUserComp.vue";
 import RecommendedUserComp from "./components/RecommendedUserComp.vue";
+import axios from "axios";
+import { store } from "./data/store";
 export default {
   name: "App",
   components: {
@@ -13,10 +15,29 @@ export default {
     AlternativeUserComp,
     RecommendedUserComp,
   },
+  data() {
+    return {
+      store,
+      usersProfiles: [],
+      newPosts: [],
+      postActivities: [],
+    };
+  },
   methods: {
     handleWheelScroll(event) {
       this.$refs.scrollContainer.scrollLeft += event.deltaY;
       event.preventDefault();
+    },
+    getApiData(key, itemToRet) {
+      axios
+        .get(store.apiUrl + key)
+        .then((response) => {
+          itemToRet.length = 0;
+          itemToRet.push(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
   mounted() {
@@ -24,7 +45,11 @@ export default {
       "wheel",
       this.handleWheelScroll
     );
+
+    this.getApiData("profiles", this.usersProfiles);
+    this.getApiData("posts", this.newPosts);
   },
+
   destroyed() {
     this.$refs.scrollContainer.removeEventListener(
       "wheel",
@@ -39,10 +64,18 @@ export default {
   <main>
     <div class="stories-posts">
       <div class="stories" ref="scrollContainer">
-        <StorieComponent v-for="n in 7" />
+        <StorieComponent
+          v-for="(storie, index) in usersProfiles[0]"
+          :key="index"
+          :storie="storie"
+        />
       </div>
       <div class="posts">
-        <PostComponent v-for="n in 5" />
+        <PostComponent
+          v-for="(post, index) in newPosts[0]"
+          :key="index"
+          :postData="post"
+        />
       </div>
     </div>
     <div class="aside">
@@ -55,7 +88,11 @@ export default {
           <a href="">Mostra tutti</a>
         </div>
         <div class="recommended-users">
-          <RecommendedUserComp v-for="n in 10" />
+          <RecommendedUserComp
+            v-for="(user, index) in usersProfiles[0]"
+            :key="index"
+            :userProfile="user"
+          />
         </div>
         <p class="footer-aside">
           <i class="fa-regular fa-copyright"></i>
